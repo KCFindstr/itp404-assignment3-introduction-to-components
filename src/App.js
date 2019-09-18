@@ -1,28 +1,47 @@
 import React from 'react';
 import './App.css';
 import Loading from './Loading';
-import SubReddit from './SubReddit';
 import { getRedditData } from './RedditApi';
+import SubRedditList from './SubRedditList';
+import SearchForm from './SearchForm';
+import SearchHistory from './SearchHistory';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      loading: true,
-      data: []
+      loading: false,
+      data: [],
+      history: [],
+      count: 0
     };
   }
-  async componentDidMount() {
-    let data = await getRedditData('lovelive');
-    this.setState({ loading: false, data })
+  doSearch = async (term, incognito) => {
+    if (!incognito) {
+      this.state.history.push(term);
+    }
+    this.setState({ loading: true });
+    try {
+      let data = await getRedditData(term);
+      this.setState({ loading: false, data });
+    } catch (e) {
+      this.setState({ loading: false, data: [] });
+    }
+  }
+  increaseReadCount = () => {
+    this.setState({ count: this.state.count + 1 });
   }
   render() {
     return (
       <div className="App">
-        { this.state.loading ? <Loading/> : [
-        <h1 className="subtitle">SubReddit Subscribers: {this.state.data[0].data.subreddit_subscribers}</h1>, this.state.data.map((reddit, index) => {
-          return <SubReddit title={reddit.data.title} url={reddit.data.url} ups={reddit.data.ups} author={reddit.data.author} numComments={reddit.data.num_comments} key={reddit.data.id}/>
-        })] }
+        <SearchForm onSearch={this.doSearch}/>
+        <SearchHistory onSearch={this.doSearch} history={this.state.history}/>
+        <div>Total read count: {this.state.count}</div>
+        { this.state.loading ? <Loading/> :
+          <SubRedditList
+            data={this.state.data}
+            onClick={this.increaseReadCount}
+          /> }
       </div>
     );
   }

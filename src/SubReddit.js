@@ -5,7 +5,14 @@ import Comment from './Comment';
 function SubReddit(props) {
 	return <div className="subreddit">
 		<div>
-			<b>Title:</b> <a href={props.url} target="_blank" rel="noopener noreferrer">{props.title}</a>
+			<b>Title:</b>
+			<a href={props.url}
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={props.onClick}
+			>
+				{props.title}
+			</a>
 		</div>
 		<div><b>Author:</b> {props.author}</div>
 		<div><b>Ups:</b> <Number value={props.ups}/></div>
